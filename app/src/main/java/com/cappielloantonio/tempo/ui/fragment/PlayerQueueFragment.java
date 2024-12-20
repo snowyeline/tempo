@@ -2,6 +2,7 @@ package com.cappielloantonio.tempo.ui.fragment;
 
 import android.content.ComponentName;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import com.cappielloantonio.tempo.service.MediaService;
 import com.cappielloantonio.tempo.subsonic.models.Child;
 import com.cappielloantonio.tempo.ui.adapter.PlayerSongQueueAdapter;
 import com.cappielloantonio.tempo.util.Constants;
+import com.cappielloantonio.tempo.viewmodel.JukeboxStatusViewModel;
 import com.cappielloantonio.tempo.viewmodel.PlayerBottomSheetViewModel;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -42,12 +44,20 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
 
     private PlayerSongQueueAdapter playerSongQueueAdapter;
 
+    private JukeboxStatusViewModel jukeboxStatusViewModel;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         bind = InnerFragmentPlayerQueueBinding.inflate(inflater, container, false);
         View view = bind.getRoot();
 
         playerBottomSheetViewModel = new ViewModelProvider(requireActivity()).get(PlayerBottomSheetViewModel.class);
+
+        jukeboxStatusViewModel = new ViewModelProvider(requireActivity()).get(JukeboxStatusViewModel.class);
+
+        bind.playerSendQueueJukeboxFab.setVisibility(View.GONE);
+        bind.playerStartJukeboxFab.setVisibility(View.GONE);
+        bind.playerStopJukeboxFab.setVisibility(View.GONE);
 
         initQueueRecyclerView();
 
@@ -94,6 +104,7 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
                 MediaBrowser mediaBrowser = mediaBrowserListenableFuture.get();
                 initShuffleButton(mediaBrowser);
                 initCleanButton(mediaBrowser);
+                initJukeboxButton(mediaBrowser);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
@@ -205,6 +216,44 @@ public class PlayerQueueFragment extends Fragment implements ClickCallback {
 
             MediaManager.removeRange(mediaBrowserListenableFuture, playerSongQueueAdapter.getItems(), startPosition, endPosition);
             bind.playerQueueRecyclerView.getAdapter().notifyItemRangeRemoved(startPosition, endPosition);
+        });
+    }
+
+    private void initJukeboxButton(MediaBrowser mediaBrowser) {
+        bind.playerJukeboxFab.setOnClickListener(view -> {
+            if (bind.playerSendQueueJukeboxFab.getVisibility() == View.GONE) {
+                bind.playerSendQueueJukeboxFab.setVisibility(View.VISIBLE);
+                bind.playerStartJukeboxFab.setVisibility(View.VISIBLE);
+                bind.playerStopJukeboxFab.setVisibility(View.VISIBLE);
+            } else {
+                bind.playerSendQueueJukeboxFab.setVisibility(View.GONE);
+                bind.playerStartJukeboxFab.setVisibility(View.GONE);
+                bind.playerStopJukeboxFab.setVisibility(View.GONE);
+            }
+        });
+
+        bind.playerSendQueueJukeboxFab.setOnClickListener(view -> {
+            java.util.List<Child> queue = playerSongQueueAdapter.getItems();
+
+            int startPosition = mediaBrowser.getCurrentMediaItemIndex() + 1;
+            int endPosition = queue.size();
+
+            if (startPosition < endPosition) {
+                ArrayList<String> trackIds = new ArrayList<>();
+                for (Child song: queue) {
+                    trackIds.add(song.getId());
+                }
+                Log.d(TAG, String.valueOf(trackIds));
+                jukeboxStatusViewModel.setJukeboxPlaylist(trackIds);
+            }
+        });
+
+        bind.playerStartJukeboxFab.setOnClickListener(view -> {
+            jukeboxStatusViewModel.startJukebox();
+        });
+
+        bind.playerStopJukeboxFab.setOnClickListener(view -> {
+            jukeboxStatusViewModel.clearJukebox();
         });
     }
 

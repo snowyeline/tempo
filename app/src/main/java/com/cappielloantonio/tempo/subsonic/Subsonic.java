@@ -4,6 +4,7 @@ import com.cappielloantonio.tempo.subsonic.api.albumsonglist.AlbumSongListClient
 import com.cappielloantonio.tempo.subsonic.api.bookmarks.BookmarksClient;
 import com.cappielloantonio.tempo.subsonic.api.browsing.BrowsingClient;
 import com.cappielloantonio.tempo.subsonic.api.internetradio.InternetRadioClient;
+import com.cappielloantonio.tempo.subsonic.api.jukebox.JukeboxClient;
 import com.cappielloantonio.tempo.subsonic.api.mediaannotation.MediaAnnotationClient;
 import com.cappielloantonio.tempo.subsonic.api.medialibraryscanning.MediaLibraryScanningClient;
 import com.cappielloantonio.tempo.subsonic.api.mediaretrieval.MediaRetrievalClient;
@@ -37,6 +38,7 @@ public class Subsonic {
     private InternetRadioClient internetRadioClient;
     private SharingClient sharingClient;
     private OpenClient openClient;
+    private JukeboxClient jukeboxClient;
 
     public Subsonic(SubsonicPreferences preferences) {
         this.preferences = preferences;
@@ -135,6 +137,13 @@ public class Subsonic {
             openClient = new OpenClient(this);
         }
         return openClient;
+    }
+
+    public JukeboxClient getJukeboxClient() {
+        if (jukeboxClient == null) {
+            jukeboxClient = new JukeboxClient(this);
+        }
+        return jukeboxClient;
     }
 
     public String getUrl() {

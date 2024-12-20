@@ -140,6 +140,10 @@
     <string name="home_title_starred_tracks_see_all_button">See all</string>
     <string name="home_title_top_songs">Your top songs</string>
     <string name="home_option_reorganize">Reorganize</string>
+    <string name="jukebox_control">Jukebox control</string>
+    <string name="jukebox_send_queue">Send queue to jukebox</string>
+    <string name="jukebox_start">Start jukebox</string>
+    <string name="jukebox_stop">Stop jukebox</string>
     <string name="label_dot_separator" translatable="false">•</string>
     <string name="label_placeholder" translatable="false">--</string>
     <string name="library_title_album">Albums</string>
